@@ -38,17 +38,17 @@ void citeste(char **cuvant)
 din dicționar și returnează 0 sau 1 */
 int cautare(struct dictionary_entry *intrare, char *decautat, int n)
 {
-    int i;
-
-    for (i = 0; i < n; i++)
+    if (n == 0)
     {
-        if (strstr(intrare[i].word, decautat) == intrare[i].word)
-        {
-            return 1;
-        }
+        return 0;
     }
 
-    return 0;
+    if (strstr(intrare[n - 1].word, decautat) == intrare[n - 1].word)
+    {
+        return 1;
+    }
+
+    return cautare(intrare, decautat, n - 1);
 }
 
 /* verifică dacă cuvântul nu este un semn de punctuație și returnează 0 sau 1 */
@@ -103,7 +103,7 @@ int exista(struct dictionary_entry **intrare, char *decautat, int *marime)
 
 /* găsește cuvântul cel mai potrivit din dicționar pentru cuvântul dat */
 void potrivire(struct dictionary_entry **intrare,
-char *decautat, int n, char *cuvbun)
+               char *decautat, int n, char *cuvbun)
 {
     char potrivit[5002][22], minpotrivit[22], bun[5002][22];
     int prioritatepotrivit[5002] = {0}, i, k = 0, maxprioritate, j = 0;
@@ -170,7 +170,7 @@ int main()
     char cuvant[5002][22], cuvbun[22];
     struct dictionary_entry *intrare;
 
-    // citește numărul de cuvinte din dicționarul inițial 
+    // citește numărul de cuvinte din dicționarul inițial
     scanf("%d", &n);
     getchar();
 
