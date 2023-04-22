@@ -1,4 +1,4 @@
-// TODO - eliberare memorie, coada, define, headere, recursivitate, operatii pe biti, makefile
+// TODO - eliberare memorie, coada, define, headere, makefile, schimbare in engleza
 
 /* exemplu de input
 
@@ -54,12 +54,20 @@ int cautare(struct dictionary_entry *intrare, char *decautat, int n)
 /* verifică dacă cuvântul nu este un semn de punctuație și returnează 0 sau 1 */
 int trbcautat(char *cuvant)
 {
-    char semne[11][11] = {",", ".", ":", "!", "?", ";"};
-    int i;
+    unsigned int semne = 0;
 
-    for (i = 0; i < 6; i++)
+    // setează biți în variabila semne pentru a reprezenta fiecare semn de punctuație
+    semne |= ((unsigned long long)1 << ',');
+    semne |= ((unsigned long long)1 << '.');
+    semne |= ((unsigned long long)1 << ':');
+    semne |= ((unsigned long long)1 << '!');
+    semne |= ((unsigned long long)1 << '?');
+    semne |= ((unsigned long long)1 << ';');
+
+    for (int i = 0; i < strlen(cuvant); i++)
     {
-        if (!strcmp(cuvant, semne[i]))
+        // verifică dacă caracterul i al cuvântului este un semn de punctuație
+        if (semne & (1 << cuvant[i]))
         {
             return 0;
         }
