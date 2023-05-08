@@ -1,4 +1,4 @@
-// TODO - eliberare memorie, coada, define, headere, makefile, schimbare in engleza
+// TODO - eliberare memorie, coada, headere, makefile
 
 /* exemplu de input
 
@@ -17,17 +17,15 @@ exit
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "structs.h"
 
-struct dictionary_entry
-{
-    char *word;
-    int priority;
-};
+#define MAX_WORDS 5002
+#define MAX_LENGTH 22
 
 /* citește fiecare cuvânt */
 void citeste(char **cuvant)
 {
-    char aux[22];
+    char aux[MAX_LENGTH];
 
     scanf("%s", aux);
     *cuvant = malloc(strlen(aux) + 1);
@@ -113,8 +111,8 @@ int exista(struct dictionary_entry **intrare, char *decautat, int *marime)
 void potrivire(struct dictionary_entry **intrare,
                char *decautat, int n, char *cuvbun)
 {
-    char potrivit[5002][22], minpotrivit[22], bun[5002][22];
-    int prioritatepotrivit[5002] = {0}, i, k = 0, maxprioritate, j = 0;
+    char potrivit[MAX_WORDS][MAX_LENGTH], minpotrivit[MAX_LENGTH], bun[MAX_WORDS][MAX_LENGTH];
+    int prioritatepotrivit[MAX_WORDS] = {0}, i, k = 0, maxprioritate, j = 0;
 
     // parcurge toate cuvintele din dicționar și
     // le păstrează pe cele cu care se potrivește
@@ -175,7 +173,7 @@ void potrivire(struct dictionary_entry **intrare,
 int main()
 {
     int n, m, i, corespunde, steluta;
-    char cuvant[5002][22], cuvbun[22];
+    char cuvant[MAX_WORDS][MAX_LENGTH], cuvbun[MAX_LENGTH];
     struct dictionary_entry *intrare;
 
     // citește numărul de cuvinte din dicționarul inițial
