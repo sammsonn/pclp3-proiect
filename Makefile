@@ -1,5 +1,5 @@
 CC=gcc
-DEPS=main.c
+DEPS=main.c functions.c
 EXE=main
 
 build: $(DEPS)
