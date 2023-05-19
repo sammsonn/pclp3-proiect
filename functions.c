@@ -6,6 +6,76 @@
 #define MAX_WORDS 5002
 #define MAX_LENGTH 22
 
+tQueue initQueue() // initializare coada
+{
+    tQueue q;
+    q.front = q.rear = NULL;
+    return q;
+}
+
+int isEmptyQueue(tQueue q) // verificare coada goala
+{
+    if (q.front == NULL)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+tQueue addQueue(tQueue q, char op[20]) // adaugare celula in coada
+{
+    pQueueCell p = (pQueueCell)malloc(sizeof(queueCell));
+
+    strcpy(p->op, op);
+    p->next = NULL;
+
+    if (q.front == NULL)
+        q.front = q.rear = p;
+    else
+    {
+        q.rear->next = p;
+        q.rear = p;
+    }
+
+    return q;
+}
+
+tQueue delQueue(tQueue q, char op[20]) // scoatere celula din coada
+{
+    pQueueCell p;
+
+    strcpy(op, q.front->op);
+
+    if (q.front == q.rear)
+    {
+        free(q.front);
+        q.front = q.rear = NULL;
+    }
+    else
+    {
+        p = q.front;
+        q.front = q.front->next;
+        free(p);
+    }
+
+    return q;
+}
+
+void freeQueue(tQueue q) // eliberare memorie coada
+{
+    pQueueCell p, aux;
+
+    p = q.front;
+
+    while (p != NULL)
+    {
+        aux = p;
+        p = p->next;
+        free(aux);
+    }
+}
+
 /* citește fiecare cuvânt */
 void citeste(char **cuvant)
 {

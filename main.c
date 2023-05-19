@@ -22,14 +22,6 @@ exit
 #define MAX_WORDS 5002
 #define MAX_LENGTH 22
 
-void citeste(char **cuvant);
-int cautare(struct dictionary_entry *intrare, char *decautat, int n);
-int trbcautat(char *cuvant);
-void adaugacuvant(struct dictionary_entry **intrare, int *marime, char *cuvant);
-int exista(struct dictionary_entry **intrare, char *decautat, int *marime);
-void potrivire(struct dictionary_entry **intrare,
-               char *decautat, int n, char *cuvbun);
-
 int main()
 {
     int n, m, i, corespunde, steluta;
