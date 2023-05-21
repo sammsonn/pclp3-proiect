@@ -23,11 +23,11 @@ int isEmptyQueue(tQueue q) // verificare coada goala
     return 0;
 }
 
-tQueue addQueue(tQueue q, char op[20]) // adaugare celula in coada
+tQueue addQueue(tQueue q, char *op) // adaugare celula in coada
 {
     pQueueCell p = (pQueueCell)malloc(sizeof(queueCell));
 
-    strcpy(p->op, op);
+    strcpy(p->word, op);
     p->next = NULL;
 
     if (q.front == NULL)
@@ -41,11 +41,11 @@ tQueue addQueue(tQueue q, char op[20]) // adaugare celula in coada
     return q;
 }
 
-tQueue delQueue(tQueue q, char op[20]) // scoatere celula din coada
+tQueue delQueue(tQueue q, char op[MAX_LENGTH]) // scoatere celula din coada
 {
     pQueueCell p;
 
-    strcpy(op, q.front->op);
+    strcpy(op, q.front->word);
 
     if (q.front == q.rear)
     {
@@ -129,13 +129,13 @@ int trbcautat(char *cuvant)
 }
 
 /* adaugă un cuvânt nou in dicționar */
-void adaugacuvant(struct dictionary_entry **intrare, int *marime, char *cuvant)
+void adaugacuvant(struct dictionary_entry **intrare, int *marime, char *cuvant, int priority)
 {
     struct dictionary_entry nou;
 
     nou.word = malloc(strlen(cuvant) + 1);
     strcpy(nou.word, cuvant);
-    nou.priority = 1;
+    nou.priority = priority;
 
     *marime = *marime + 1;
     *intrare = realloc(*intrare, *marime * sizeof(struct dictionary_entry));
