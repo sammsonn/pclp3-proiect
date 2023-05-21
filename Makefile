@@ -4,6 +4,7 @@ EXE=main
 
 build: $(DEPS)
 	$(CC) -Wall $^ -o $(EXE) -g
+	touch input.in output.out
 
 run:
 	./$(EXE)
@@ -12,3 +13,4 @@ run:
 
 clean:
 	rm -f $(EXE)
+	rm input.in output.out
