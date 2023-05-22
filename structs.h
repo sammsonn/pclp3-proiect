@@ -1,10 +1,10 @@
 #define MAX_LENGTH 22
 
-struct dictionary_entry
+typedef struct dictionaryEntry
 {
     char *word;
     int priority;
-};
+} dictionaryEntry;
 
 typedef struct queueCell // celula din coada
 {
@@ -17,15 +17,15 @@ typedef struct queue // coada
     pQueueCell front, rear; // adresa fetei si a spatelui
 } tQueue;
 
-int cautare(struct dictionary_entry *intrare, char *decautat, int n);
-int trbcautat(char *cuvant);
-int exista(struct dictionary_entry **intrare, char *decautat, int *marime);
+int search(dictionaryEntry *entry, char *searchedWord, int dictSize);
+int mustSearch(char *word);
+int exists(dictionaryEntry **entry, char *searchedWord, int *dictSize);
 int isEmptyQueue(tQueue q);
-void potrivire(struct dictionary_entry **intrare,
-               char *decautat, int n, char *cuvbun);
-void citeste(char **cuvant);
-void adaugacuvant(struct dictionary_entry **intrare, int *marime, char *cuvant, int priority);
+void match(dictionaryEntry **entry,
+           char *searchedWord, int n, char *rightWord);
+void addWord(dictionaryEntry **entry, int *dictSize, char *word, int priority);
 void freeQueue(tQueue q);
+void freeDict(dictionaryEntry *intrare, int size);
 tQueue initQueue();
 tQueue addQueue(tQueue q, char *op);
 tQueue delQueue(tQueue q, char op[MAX_LENGTH]);

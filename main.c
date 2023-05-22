@@ -1,8 +1,6 @@
-// TODO: eliberare memorie
-
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 #include "structs.h"
 
 #define MAX_WORDS 5002
@@ -10,10 +8,10 @@
 
 int main()
 {
-    int n = 0, corespunde, steluta;
-    char cuvant[MAX_LENGTH], cuvbun[MAX_LENGTH], text[MAX_WORDS], *aux, line[MAX_LENGTH + 3];
-    char *priority;
-    struct dictionary_entry *intrare;
+    int dictSize = 0, corresponds, star;
+    char word[MAX_LENGTH], rightWord[MAX_LENGTH], text[MAX_WORDS],
+        line[MAX_LENGTH + 3], *priority, *aux;
+    dictionaryEntry *entry;
     FILE *fr, *fw;
     tQueue queue;
 
@@ -22,89 +20,96 @@ int main()
 
     queue = initQueue(queue);
 
+    // citește textul de completat
     fgets(text, MAX_WORDS, fr);
     text[strlen(text) - 1] = '\0';
 
+    // adaugă fiecare cuvânt din text într-o coadă
     aux = strtok(text, " ");
     while (aux != NULL)
     {
         queue = addQueue(queue, aux);
-        //puts(aux);
         aux = strtok(NULL, " ");
     }
 
-    intrare = malloc(sizeof(struct dictionary_entry));
+    entry = malloc(sizeof(dictionaryEntry));
 
-    fgets(line, MAX_LENGTH+3, fr);
+    // citește cuvintele din dicționar și prioritatea lor
+    fgets(line, MAX_LENGTH + 3, fr);
     line[strlen(line) - 1] = '\0';
     while (strcmp(line, "complete"))
     {
         aux = strtok(line, " ");
         priority = strtok(NULL, " ");
-        adaugacuvant(&intrare, &n, aux, atoi(priority));
+        // adaugă cuvântul și prioritatea curentă în dicționar
+        addWord(&entry, &dictSize, aux, atoi(priority));
 
-        fgets(line, MAX_LENGTH+3, fr);
+        fgets(line, MAX_LENGTH + 3, fr);
         line[strlen(line) - 1] = '\0';
     }
 
-    // parcurge cuvintele introduse de utilizator
+    // parcurge cuvintele din text
     while (!isEmptyQueue(queue))
     {
-        queue = delQueue(queue, cuvant);
+        queue = delQueue(queue, word);
 
         // verifică dacă are * la final
-        steluta = 0;
-        if (cuvant[strlen(cuvant) - 1] == '*')
+        star = 0;
+        if (word[strlen(word) - 1] == '*')
         {
-            steluta = 1;
-            cuvant[strlen(cuvant) - 1] = '\0';
+            star = 1;
+            word[strlen(word) - 1] = '\0';
         }
 
         // dacă nu este semn de punctuație
-        if (trbcautat(cuvant))
+        if (mustSearch(word))
         {
             // verifică dacă corespunde măcar unui cuvânt din dicționar
-            corespunde = cautare(intrare, cuvant, n);
+            corresponds = search(entry, word, dictSize);
 
-            // dacă nu corespunde niciunuia și nu are * la final
-            if (!corespunde && !steluta)
+            // dacă nu corresponds niciunuia și nu are * la final
+            if (!corresponds && !star)
             {
-                adaugacuvant(&intrare, &n, cuvant, 1);
+                addWord(&entry, &dictSize, word, 1);
 
                 // este afișat așa cum e
-                fprintf(fw, "%s ", cuvant);
+                fprintf(fw, "%s ", word);
             }
 
             // dacă are * la final
-            if (steluta)
+            if (star)
             {
                 // dacă nu există deja în dicționar
-                if (!exista(&intrare, cuvant, &n))
+                if (!exists(&entry, word, &dictSize))
                 {
-                    adaugacuvant(&intrare, &n, cuvant, 1);
+                    addWord(&entry, &dictSize, word, 1);
                 }
 
                 // este afișat așa cum e
-                fprintf(fw, "%s ", cuvant);
+                fprintf(fw, "%s ", word);
             }
 
             // dacă corespunde măcar unui cuvânt
             // din dicționar și nu are * la final
-            if (corespunde && !steluta)
+            if (corresponds && !star)
             {
-                potrivire(&intrare, cuvant, n, cuvbun);
+                match(&entry, word, dictSize, rightWord);
 
                 // este afișat cuvântul din dicționar cel mai potrivit
-                fprintf(fw, "%s ", cuvbun);
+                fprintf(fw, "%s ", rightWord);
             }
         }
         // dacă e semn de punctuație
         else
         {
             // este afișat așa cum e
-            fprintf(fw, "%s ", cuvant);
+            fprintf(fw, "%s ", word);
         }
     }
+
+    // se eliberează memoria
+    freeDict(entry, dictSize);
+    freeQueue(queue);
 
     fclose(fr);
     fclose(fw);

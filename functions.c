@@ -23,11 +23,11 @@ int isEmptyQueue(tQueue q) // verificare coada goala
     return 0;
 }
 
-tQueue addQueue(tQueue q, char *op) // adaugare celula in coada
+tQueue addQueue(tQueue q, char *word) // adaugare celula in coada
 {
     pQueueCell p = (pQueueCell)malloc(sizeof(queueCell));
 
-    strcpy(p->word, op);
+    strcpy(p->word, word);
     p->next = NULL;
 
     if (q.front == NULL)
@@ -41,11 +41,11 @@ tQueue addQueue(tQueue q, char *op) // adaugare celula in coada
     return q;
 }
 
-tQueue delQueue(tQueue q, char op[MAX_LENGTH]) // scoatere celula din coada
+tQueue delQueue(tQueue q, char word[MAX_LENGTH]) // scoatere celula din coada
 {
     pQueueCell p;
 
-    strcpy(op, q.front->word);
+    strcpy(word, q.front->word);
 
     if (q.front == q.rear)
     {
@@ -76,50 +76,42 @@ void freeQueue(tQueue q) // eliberare memorie coada
     }
 }
 
-/* citește fiecare cuvânt */
-void citeste(char **cuvant)
-{
-    char aux[MAX_LENGTH];
-
-    scanf("%s", aux);
-    *cuvant = malloc(strlen(aux) + 1);
-    strcpy(*cuvant, aux);
-}
-
 /* caută dacă cuvântul corespunde unui cuvânt
 din dicționar și returnează 0 sau 1 */
-int cautare(struct dictionary_entry *intrare, char *decautat, int n)
+int search(dictionaryEntry *entry, char *searchedWord, int dictSize)
 {
-    if (n == 0)
+    if (dictSize == 0)
     {
         return 0;
     }
 
-    if (strstr(intrare[n - 1].word, decautat) == intrare[n - 1].word)
+    if (strstr(entry[dictSize - 1].word, searchedWord) ==
+        entry[dictSize - 1].word)
     {
         return 1;
     }
 
-    return cautare(intrare, decautat, n - 1);
+    return search(entry, searchedWord, dictSize - 1);
 }
 
 /* verifică dacă cuvântul nu este un semn de punctuație și returnează 0 sau 1 */
-int trbcautat(char *cuvant)
+int mustSearch(char *word)
 {
-    unsigned int semne = 0;
+    unsigned int signs = 0;
 
-    // setează biți în variabila semne pentru a reprezenta fiecare semn de punctuație
-    semne |= ((unsigned long long)1 << ',');
-    semne |= ((unsigned long long)1 << '.');
-    semne |= ((unsigned long long)1 << ':');
-    semne |= ((unsigned long long)1 << '!');
-    semne |= ((unsigned long long)1 << '?');
-    semne |= ((unsigned long long)1 << ';');
+    // setează biți în variabila signs pentru a
+    // reprezenta fiecare semn de punctuație
+    signs |= ((unsigned long long)1 << ',');
+    signs |= ((unsigned long long)1 << '.');
+    signs |= ((unsigned long long)1 << ':');
+    signs |= ((unsigned long long)1 << '!');
+    signs |= ((unsigned long long)1 << '?');
+    signs |= ((unsigned long long)1 << ';');
 
-    for (int i = 0; i < strlen(cuvant); i++)
+    for (int i = 0; i < strlen(word); i++)
     {
         // verifică dacă caracterul i al cuvântului este un semn de punctuație
-        if (semne & (1 << cuvant[i]))
+        if (signs & (1 << word[i]))
         {
             return 0;
         }
@@ -129,31 +121,31 @@ int trbcautat(char *cuvant)
 }
 
 /* adaugă un cuvânt nou in dicționar */
-void adaugacuvant(struct dictionary_entry **intrare, int *marime, char *cuvant, int priority)
+void addWord(dictionaryEntry **entry, int *dictSize, char *word, int priority)
 {
-    struct dictionary_entry nou;
+    dictionaryEntry nou;
 
-    nou.word = malloc(strlen(cuvant) + 1);
-    strcpy(nou.word, cuvant);
+    nou.word = malloc(strlen(word) + 1);
+    strcpy(nou.word, word);
     nou.priority = priority;
 
-    *marime = *marime + 1;
-    *intrare = realloc(*intrare, *marime * sizeof(struct dictionary_entry));
+    *dictSize = *dictSize + 1;
+    *entry = realloc(*entry, *dictSize * sizeof(dictionaryEntry));
 
-    (*intrare)[*marime - 1] = nou;
+    (*entry)[*dictSize - 1] = nou;
 }
 
 /* verifică dacă cuvântul există deja în dicționar și returnează 0 sau 1*/
-int exista(struct dictionary_entry **intrare, char *decautat, int *marime)
+int exists(dictionaryEntry **entry, char *searchedWord, int *dictSize)
 {
     int i;
 
-    for (i = 0; i < *marime; i++)
+    for (i = 0; i < *dictSize; i++)
     {
-        if (!strcmp((*intrare)[i].word, decautat))
+        if (!strcmp((*entry)[i].word, searchedWord))
         {
             // dacă există deja îi crește prioritatea
-            (*intrare)[i].priority = (*intrare)[i].priority + 1;
+            (*entry)[i].priority = (*entry)[i].priority + 1;
             return 1;
         }
     }
@@ -161,32 +153,33 @@ int exista(struct dictionary_entry **intrare, char *decautat, int *marime)
     return 0;
 }
 
-/* găsește cuvântul cel mai potrivit din dicționar pentru cuvântul dat */
-void potrivire(struct dictionary_entry **intrare,
-               char *decautat, int n, char *cuvbun)
+/* găsește cuvântul cel mai match din dicționar pentru cuvântul dat */
+void match(dictionaryEntry **entry,
+           char *searchedWord, int n, char *rightWord)
 {
-    char potrivit[MAX_WORDS][MAX_LENGTH], minpotrivit[MAX_LENGTH], bun[MAX_WORDS][MAX_LENGTH];
-    int prioritatepotrivit[MAX_WORDS] = {0}, i, k = 0, maxprioritate, j = 0;
+    char match[MAX_WORDS][MAX_LENGTH], minMatch[MAX_LENGTH],
+        right[MAX_WORDS][MAX_LENGTH];
+    int matchPriority[MAX_WORDS] = {0}, i, k = 0, priorityMax, j = 0;
 
     // parcurge toate cuvintele din dicționar și
     // le păstrează pe cele cu care se potrivește
     for (i = 0; i < n; i++)
     {
-        if (strstr((*intrare)[i].word, decautat) == (*intrare)[i].word)
+        if (strstr((*entry)[i].word, searchedWord) == (*entry)[i].word)
         {
-            strcpy(potrivit[k], (*intrare)[i].word);
-            prioritatepotrivit[k] = (*intrare)[i].priority;
+            strcpy(match[k], (*entry)[i].word);
+            matchPriority[k] = (*entry)[i].priority;
             k++;
         }
     }
 
     // parcurge cuvintele ce se potrivesc și află cea mai mare prioritate
-    maxprioritate = prioritatepotrivit[0];
+    priorityMax = matchPriority[0];
     for (i = 1; i < k; i++)
     {
-        if (prioritatepotrivit[i] > maxprioritate)
+        if (matchPriority[i] > priorityMax)
         {
-            maxprioritate = prioritatepotrivit[i];
+            priorityMax = matchPriority[i];
         }
     }
 
@@ -194,32 +187,42 @@ void potrivire(struct dictionary_entry **intrare,
     // salvează pe cele care au cea mai mare prioritate
     for (i = 0; i < k; i++)
     {
-        if (prioritatepotrivit[i] == maxprioritate)
+        if (matchPriority[i] == priorityMax)
         {
-            strcpy(bun[j], potrivit[i]);
+            strcpy(right[j], match[i]);
             j++;
         }
     }
 
     // parcurge cuvintele cu prioritate maximă ce se potrivesc
-    strcpy(minpotrivit, bun[0]);
+    strcpy(minMatch, right[0]);
     for (i = 1; i < j; i++)
     {
-        if (strcmp(bun[i], minpotrivit) < 0)
+        if (strcmp(right[i], minMatch) < 0)
         {
             // îl păstrează pe cel mai mic lexicografic
-            strcpy(minpotrivit, bun[i]);
+            strcpy(minMatch, right[i]);
         }
     }
 
-    strcpy(cuvbun, minpotrivit);
+    strcpy(rightWord, minMatch);
 
     // crește prioritatea cuvântului găsit
     for (i = 0; i < n; i++)
     {
-        if (!strcmp((*intrare)[i].word, minpotrivit))
+        if (!strcmp((*entry)[i].word, minMatch))
         {
-            (*intrare)[i].priority = (*intrare)[i].priority + 1;
+            (*entry)[i].priority = (*entry)[i].priority + 1;
         }
     }
+}
+
+void freeDict(dictionaryEntry *entry, int dictSize)
+{
+    for (int i = 0; i < dictSize; i++)
+    {
+        free(entry[i].word);
+    }
+
+    free(entry);
 }
